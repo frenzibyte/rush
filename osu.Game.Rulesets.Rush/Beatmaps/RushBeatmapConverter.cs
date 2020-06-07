@@ -70,13 +70,11 @@ namespace osu.Game.Rulesets.Rush.Beatmaps
             // TODO: for now we'll skip notesheets as they'll require some funky logic
 
             // if it's definitely a spinner, return a miniboss
-            if (original is IHasDuration && !(original is IHasDistance))
+            if (tryConvertToMiniBoss(original, out var miniBoss))
             {
-                yield return new MiniBoss { Samples = original.Samples, StartTime = original.StartTime, EndTime = original.GetEndTime() };
+                yield return miniBoss;
 
-                previousLane = null;
-                previousSourceTime = original.GetEndTime();
-                previousSourcePosition = null;
+                updateAsPrevious(original, null);
                 yield break;
             }
 
@@ -85,7 +83,6 @@ namespace osu.Game.Rulesets.Rush.Beatmaps
 
             HitObjectFlags flags = flagsForHitObject(original, beatmap);
             LanedHitLane? lane = null;
-            var kiaiMultiplier = original.Kiai ? kiai_multiplier : 1;
 
             // try to get a lane from the force flags
             if (flags.HasFlag(HitObjectFlags.ForceSameLane) || flags.HasFlag(HitObjectFlags.SuggestSameLane) && random.NextDouble() < suggest_probability)
@@ -96,25 +93,16 @@ namespace osu.Game.Rulesets.Rush.Beatmaps
             // if it's low probability, potentially skip this object
             if (flags.HasFlag(HitObjectFlags.LowProbability) && random.NextDouble() < skip_probability)
             {
-                previousLane = lane ?? previousLane;
-                previousSourceTime = original.GetEndTime();
-                previousSourcePosition = (original as IHasPosition)?.Position;
+                updateAsPrevious(original, lane ?? previousLane);
                 yield break;
             }
 
-            // if we don't have a lane and not too close to a sawblade, allow adding a double hit
-            if (lane == null
-                && original.StartTime - lastSawbladeTime >= sawblade_same_lane_safety_time
-                && flags.HasFlag(HitObjectFlags.AllowDoubleHit)
-                && original.StartTime >= nextDualOrbTime
-                && random.NextDouble() < orb_probability)
+            // try converting this object into a dual orb.
+            if (tryConvertToDualOrb(original, flags, random, out var dualOrb))
             {
-                nextDualOrbTime = original.StartTime + min_orb_time;
-                yield return new DualOrb { StartTime = original.StartTime, Samples = original.Samples };
+                yield return dualOrb;
 
-                previousLane = null;
-                previousSourceTime = original.GetEndTime();
-                previousSourcePosition = (original as IHasPosition)?.Position;
+                updateAsPrevious(original, null);
                 yield break;
             }
 
@@ -126,42 +114,13 @@ namespace osu.Game.Rulesets.Rush.Beatmaps
 
             bool sawbladeAdded = false;
 
-            // if we are allowed to add or replace a sawblade, potentially do it
-            if ((flags & HitObjectFlags.AllowSawbladeAddOrReplace) != 0 && original.StartTime >= nextSawbladeTime && kiaiMultiplier * random.NextDouble() < sawblade_probability)
+            // try converting this object into a sawblade.
+            if (tryConvertToSawblade(original, finalLane, flags, random, out var sawblade))
             {
-                // the sawblade will always appear in the opposite lane to where the player is expected to hit
-                var sawbladeLane = finalLane.Opposite();
+                sawbladeAdded = true;
+                yield return sawblade;
 
-                // if the sawblade time is less than twice the minimum gap, it must be in the opposite lane to its previous one
-                if (original.StartTime - nextSawbladeTime < 2 * min_sawblade_time)
-                    sawbladeLane = lastSawbladeLane?.Opposite() ?? LanedHitLane.Ground;
-
-                // if the new sawblade is too close to the previous hit in the same lane, skip it
-                var tooCloseToSameLane = previousLane == null || previousLane == sawbladeLane && original.StartTime - previousSourceTime < sawblade_same_lane_safety_time;
-
-                // if a ground sawblade is too far from the previous hit in the air lane, skip it (as the player may not have time to jump upon landing)
-                var canFallOntoSawblade = previousLane == LanedHitLane.Air && sawbladeLane == LanedHitLane.Ground && original.StartTime - previousSourceTime > sawblade_fall_safety_near_time
-                                          && original.StartTime - previousSourceTime < sawblade_fall_safety_far_time;
-
-                // air sawblades may only appear in a kiai section, and not too close to a hit in the same lane (or laneless)
-                // also need to account for a gap where the player may fall onto the blade
-                if (!tooCloseToSameLane && !canFallOntoSawblade && (sawbladeLane == LanedHitLane.Ground || original.Kiai))
-                {
-                    sawbladeAdded = true;
-                    lastSawbladeLane = sawbladeLane;
-                    lastSawbladeTime = original.StartTime;
-                    nextSawbladeTime = original.StartTime + min_sawblade_time;
-
-                    // add a sawblade
-                    yield return new Sawblade
-                    {
-                        StartTime = original.StartTime,
-                        Lane = sawbladeLane
-                    };
-
-                    // absolutely need to make sure that we never try to add a hit to the same lane as the sawblade that was just added
-                    finalLane = sawbladeLane.Opposite();
-                }
+                finalLane = sawblade.Lane.Opposite();
             }
 
             // we can add a regular hit if:
@@ -170,33 +129,142 @@ namespace osu.Game.Rulesets.Rush.Beatmaps
             //   we added a sawblade that was in the opposite lane
             if (!tooCloseToLastSawblade && (!sawbladeAdded || !flags.HasFlag(HitObjectFlags.AllowSawbladeReplace)))
             {
+                if (tryConvertToNormalHit(original, finalLane, flags, out LanedHit hit))
+                    yield return hit;
+            }
+
+            // update "previous" info for the next hitobject
+            updateAsPrevious(original, finalLane);
+        }
+
+        private void updateAsPrevious(HitObject original, LanedHitLane? lane)
+        {
+            previousLane = lane;
+            previousSourceTime = original.GetEndTime();
+            previousSourcePosition = (original as IHasPosition)?.Position;
+        }
+
+        private bool tryConvertToMiniBoss(HitObject original, out MiniBoss miniBoss)
+        {
+            miniBoss = null;
+
+            // if it's definitely a spinner, return a miniboss
+            if (original is IHasDuration && !(original is IHasDistance))
+            {
+                miniBoss = new MiniBoss
+                {
+                    StartTime = original.StartTime,
+                    EndTime = original.GetEndTime(),
+                    Samples = original.Samples,
+                };
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool tryConvertToDualOrb(HitObject original, HitObjectFlags flags, Random randomiser, out DualOrb dualOrb)
+        {
+            // if we don't have a lane and not too close to a sawblade, allow adding a double hit
+            if (original.StartTime - lastSawbladeTime >= sawblade_same_lane_safety_time
+                && flags.HasFlag(HitObjectFlags.AllowDoubleHit)
+                && original.StartTime >= nextDualOrbTime
+                && randomiser.NextDouble() < orb_probability)
+            {
+                nextDualOrbTime = original.StartTime + min_orb_time;
+
+                dualOrb = new DualOrb { StartTime = original.StartTime, Samples = original.Samples };
+                return true;
+            }
+
+            dualOrb = null;
+            return false;
+        }
+
+        private bool tryConvertToSawblade(HitObject original, LanedHitLane lane, HitObjectFlags flags, Random randomiser, out Sawblade sawblade)
+        {
+            sawblade = null;
+
+            var kiaiMultiplier = original.Kiai ? kiai_multiplier : 1;
+
+            // if we are allowed to add or replace a sawblade, potentially do it
+            if ((flags & HitObjectFlags.AllowSawbladeAddOrReplace) != 0
+                && original.StartTime >= nextSawbladeTime
+                && kiaiMultiplier * randomiser.NextDouble() < sawblade_probability)
+            {
+                // the sawblade will always appear in the opposite lane to where the player is expected to hit
+                var sawbladeLane = lane.Opposite();
+
+                // if the sawblade time is less than twice the minimum gap, it must be in the opposite lane to its previous one
+                if (original.StartTime - nextSawbladeTime < 2 * min_sawblade_time)
+                    sawbladeLane = lastSawbladeLane?.Opposite() ?? LanedHitLane.Ground;
+
+                // if the new sawblade is too close to the previous hit in the same lane, skip it
+                if (previousLane == null || previousLane == sawbladeLane && original.StartTime - previousSourceTime < sawblade_same_lane_safety_time)
+                    return false;
+
+                // if a ground sawblade is too far from the previous hit in the air lane, skip it (as the player may not have time to jump upon landing)
+                if (previousLane == LanedHitLane.Air
+                    && sawbladeLane == LanedHitLane.Ground
+                    && original.StartTime - previousSourceTime > sawblade_fall_safety_near_time
+                    && original.StartTime - previousSourceTime < sawblade_fall_safety_far_time)
+                    return false;
+
+                // air sawblades may only appear in a kiai section, and not too close to a hit in the same lane (or laneless)
+                if (sawbladeLane == LanedHitLane.Ground || original.Kiai)
+                {
+                    lastSawbladeLane = sawbladeLane;
+                    lastSawbladeTime = original.StartTime;
+                    nextSawbladeTime = original.StartTime + min_sawblade_time;
+
+                    // add a sawblade
+                    sawblade = new Sawblade
+                    {
+                        StartTime = original.StartTime,
+                        Lane = sawbladeLane
+                    };
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool tryConvertToNormalHit(HitObject original, LanedHitLane lane, HitObjectFlags flags, out LanedHit hit)
+        {
+            hit = null;
+
+            // Add a regular hit if it wasn't replaced with a sawblade.
+            if (!flags.HasFlag(HitObjectFlags.AllowSawbladeReplace))
+            {
                 // if it's time to add a heart, we must do so
                 if (original.StartTime >= nextHeartTime)
                 {
                     nextHeartTime += min_heart_time;
 
-                    yield return new Heart
+                    hit = new Heart
                     {
                         StartTime = original.StartTime,
                         Samples = original.Samples,
-                        Lane = finalLane,
+                        Lane = lane,
                     };
                 }
                 else
                 {
-                    yield return new Minion
+                    hit = new Minion
                     {
                         StartTime = original.StartTime,
                         Samples = original.Samples,
-                        Lane = finalLane,
+                        Lane = lane,
                     };
                 }
+
+                return true;
             }
 
-            // update "previous" info for the next hitobject
-            previousLane = finalLane;
-            previousSourceTime = original.GetEndTime();
-            previousSourcePosition = (original as IHasPosition)?.Position;
+            return false;
         }
 
         private LanedHitLane? laneForHitObject(HitObject hitObject) =>
