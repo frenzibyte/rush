@@ -12,4 +12,7 @@
   <ItemGroup>
     <PackageReference Include="ppy.osu.Game" Version="2021.323.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\osu\osu.Game\osu.Game.csproj" />
+  </ItemGroup>
 </Project>

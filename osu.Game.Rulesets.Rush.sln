@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "osu.Game.Rulesets.Rush", "o
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu.Game.Rulesets.Rush.Tests", "osu.Game.Rulesets.Rush.Tests\osu.Game.Rulesets.Rush.Tests.csproj", "{B4577C85-CB83-462A-BCE3-22FFEB16311D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu.Game", "..\osu\osu.Game\osu.Game.csproj", "{12D27E14-182A-483F-A638-C9DAF40F8005}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,12 @@ Global
 		{B4577C85-CB83-462A-BCE3-22FFEB16311D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B4577C85-CB83-462A-BCE3-22FFEB16311D}.VisualTests|Any CPU.ActiveCfg = Debug|Any CPU
 		{B4577C85-CB83-462A-BCE3-22FFEB16311D}.VisualTests|Any CPU.Build.0 = Debug|Any CPU
+		{12D27E14-182A-483F-A638-C9DAF40F8005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12D27E14-182A-483F-A638-C9DAF40F8005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12D27E14-182A-483F-A638-C9DAF40F8005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12D27E14-182A-483F-A638-C9DAF40F8005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12D27E14-182A-483F-A638-C9DAF40F8005}.VisualTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{12D27E14-182A-483F-A638-C9DAF40F8005}.VisualTests|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
