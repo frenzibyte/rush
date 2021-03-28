@@ -69,7 +69,7 @@ namespace osu.Game.Rulesets.Rush.Objects.Drawables
         protected virtual float LifetimeEndDelay => LIFETIME_END_DELAY;
 
         [Resolved]
-        private DrawableRushRuleset drawableRuleset { get; set; }
+        private RushPlayfield playfield { get; set; }
 
         protected DrawableRushHitObject(RushHitObject hitObject)
             : base(hitObject)
@@ -155,7 +155,7 @@ namespace osu.Game.Rulesets.Rush.Objects.Drawables
                 var r = (RushJudgementResult)br;
 
                 application?.Invoke(r);
-                r.PlayerCollided = drawableRuleset.PlayerCollidesWith(r.HitObject);
+                r.PlayerCollided = playfield.PlayerCollidesWith(r.HitObject);
             };
 
             base.ApplyResult(rushApplication);

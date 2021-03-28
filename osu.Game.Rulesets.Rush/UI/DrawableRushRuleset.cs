@@ -2,14 +2,12 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
-using osu.Framework.Allocation;
 using osu.Framework.Input;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
 using osu.Game.Input.Handlers;
 using osu.Game.Replays;
 using osu.Game.Rulesets.Mods;
-using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Rush.Objects;
 using osu.Game.Rulesets.Rush.Objects.Drawables;
@@ -19,7 +17,6 @@ using osu.Game.Rulesets.UI.Scrolling;
 
 namespace osu.Game.Rulesets.Rush.UI
 {
-    [Cached]
     public class DrawableRushRuleset : DrawableScrollingRuleset<RushHitObject>
     {
         protected override bool UserScrollSpeedAdjustment => true;
@@ -32,8 +29,6 @@ namespace osu.Game.Rulesets.Rush.UI
             Direction.Value = ScrollingDirection.Left;
             TimeRange.Value = 800;
         }
-
-        public bool PlayerCollidesWith(HitObject hitObject) => Playfield.PlayerSprite.CollidesWith(hitObject);
 
         protected override Playfield CreatePlayfield() => new RushPlayfield();
 

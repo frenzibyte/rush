@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Utils;
 using osu.Game.Rulesets.Judgements;
+using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Rush.Judgements;
 using osu.Game.Rulesets.Rush.Objects;
@@ -232,6 +233,12 @@ namespace osu.Game.Rulesets.Rush.UI
 
             return true;
         }
+
+        /// <summary>
+        /// Whether the player has collided with the given hit object.
+        /// </summary>
+        /// <param name="hitObject">The hit object to check for.</param>
+        public bool PlayerCollidesWith(HitObject hitObject) => PlayerSprite.CollidesWith(hitObject);
 
         private void onMiniBossAttacked(DrawableMiniBoss drawableMiniBoss, double timeOffset)
         {
