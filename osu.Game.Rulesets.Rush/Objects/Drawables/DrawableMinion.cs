@@ -40,8 +40,8 @@ namespace osu.Game.Rulesets.Rush.Objects.Drawables
         {
             base.Update();
 
-            float fraction = (float)(HitObject.StartTime - Clock.CurrentTime) / 500f;
-            minionPiece.Y = (float)(Math.Sin(fraction * 2 * Math.PI) * (HitObject.Lane == LanedHitLane.Air ? 5f : 3f));
+            //float fraction = (float)(HitObject.StartTime - Clock.CurrentTime) / 500f;
+            //minionPiece.Y = (float)(Math.Sin(fraction * 2 * Math.PI) * (HitObject.Lane == LanedHitLane.Air ? 5f : 3f));
         }
 
         protected override void UpdateHitStateTransforms(ArmedState state)
