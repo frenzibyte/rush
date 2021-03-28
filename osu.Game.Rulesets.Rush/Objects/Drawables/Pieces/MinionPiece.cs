@@ -6,7 +6,8 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Primitives;
+using osu.Framework.Graphics.Shaders;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics.Backgrounds;
@@ -19,7 +20,7 @@ namespace osu.Game.Rulesets.Rush.Objects.Drawables.Pieces
     public class MinionPiece : CompositeDrawable
     {
         private Sprite innerTriangle;
-        private Container trianglesContainer;
+        private TriangularContainer trianglesContainer;
         private Triangles triangles;
 
         private IBindable<Color4> accentColour;
@@ -31,6 +32,14 @@ namespace osu.Game.Rulesets.Rush.Objects.Drawables.Pieces
 
             InternalChildren = new Drawable[]
             {
+                new Box
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Scale = new Vector2(5f),
+                    Colour = Color4.White,
+                },
                 new Container
                 {
                     Anchor = Anchor.Centre,
@@ -47,21 +56,20 @@ namespace osu.Game.Rulesets.Rush.Objects.Drawables.Pieces
                             FillMode = FillMode.Fit,
                             Texture = textures.Get("Minion/rounded_triangle"),
                         },
-                        trianglesContainer = new Container
+                        trianglesContainer = new TriangularContainer
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Size = new Vector2(0.55f, 0.65f),
-                            Margin = new MarginPadding { Left = 10 },
-                            Masking = true,
-                            Child = triangles = new Triangles
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Scale = new Vector2(0.5f),
-                            }
+                            Texture = Texture.WhitePixel,
+                            Colour = Color4.Aqua,
+                            //Child = triangles = new Triangles
+                            //{
+                            //    Anchor = Anchor.Centre,
+                            //    Origin = Anchor.Centre,
+                            //    RelativeSizeAxes = Axes.Both,
+                            //    Scale = new Vector2(0.5f),
+                            //}
                         }
                     }
                 },
@@ -79,23 +87,23 @@ namespace osu.Game.Rulesets.Rush.Objects.Drawables.Pieces
             accentColour.BindValueChanged(c =>
             {
                 innerTriangle.Colour = c.NewValue;
-                triangles.ColourLight = c.NewValue.Lighten(0.1f);
-                triangles.ColourDark = c.NewValue.Darken(0.1f);
+                //triangles.ColourLight = c.NewValue.Lighten(0.1f);
+                //triangles.ColourDark = c.NewValue.Darken(0.1f);
             }, true);
 
             trianglesContainer.FillAspectRatio = innerTriangle.FillAspectRatio;
         }
 
-        private class TriangularContainer : Container
+        private class TriangularContainer : Sprite
         {
-            public override RectangleF BoundingBox => toTriangle(ToParentSpace(LayoutRectangle)).AABBFloat;
+            private IShader triangleShader;
 
-            private static Framework.Graphics.Primitives.Triangle toTriangle(Quad q) => new Framework.Graphics.Primitives.Triangle(
-                (q.TopLeft + q.TopRight) / 2,
-                q.BottomLeft,
-                q.BottomRight);
-
-            public override bool Contains(Vector2 screenSpacePos) => toTriangle(ScreenSpaceDrawQuad).Contains(screenSpacePos);
+            [BackgroundDependencyLoader]
+            private void load(ShaderManager shaders)
+            {
+                TextureShader = shaders.Load(VertexShaderDescriptor.TEXTURE_2, "Triangle");
+                RoundedTextureShader = shaders.Load(VertexShaderDescriptor.TEXTURE_2, "Triangle");
+            }
         }
     }
 }
