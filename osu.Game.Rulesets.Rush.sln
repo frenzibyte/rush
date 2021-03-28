@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu.Game.Rulesets.Rush.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu.Game", "..\osu\osu.Game\osu.Game.csproj", "{12D27E14-182A-483F-A638-C9DAF40F8005}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu.Framework", "..\osu-framework\osu.Framework\osu.Framework.csproj", "{34F6D40A-2C70-48B0-9039-0C7C0243C1C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "osu.Framework.NativeLibs", "..\osu-framework\osu.Framework.NativeLibs\osu.Framework.NativeLibs.csproj", "{AD133414-13AC-458B-BDEC-872F449B5BC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +38,18 @@ Global
 		{12D27E14-182A-483F-A638-C9DAF40F8005}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12D27E14-182A-483F-A638-C9DAF40F8005}.VisualTests|Any CPU.ActiveCfg = Debug|Any CPU
 		{12D27E14-182A-483F-A638-C9DAF40F8005}.VisualTests|Any CPU.Build.0 = Debug|Any CPU
+		{34F6D40A-2C70-48B0-9039-0C7C0243C1C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34F6D40A-2C70-48B0-9039-0C7C0243C1C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34F6D40A-2C70-48B0-9039-0C7C0243C1C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34F6D40A-2C70-48B0-9039-0C7C0243C1C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34F6D40A-2C70-48B0-9039-0C7C0243C1C6}.VisualTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{34F6D40A-2C70-48B0-9039-0C7C0243C1C6}.VisualTests|Any CPU.Build.0 = Debug|Any CPU
+		{AD133414-13AC-458B-BDEC-872F449B5BC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD133414-13AC-458B-BDEC-872F449B5BC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD133414-13AC-458B-BDEC-872F449B5BC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD133414-13AC-458B-BDEC-872F449B5BC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD133414-13AC-458B-BDEC-872F449B5BC0}.VisualTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD133414-13AC-458B-BDEC-872F449B5BC0}.VisualTests|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
