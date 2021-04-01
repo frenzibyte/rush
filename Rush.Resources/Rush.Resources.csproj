@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Label="Project">
+      <TargetFramework>netstandard2.1</TargetFramework>
+      <AssemblyName>Rush.Resources</AssemblyName>
+      <RootNamespace>Rush.Resources</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Textures\**" />
+  </ItemGroup>
+</Project>
