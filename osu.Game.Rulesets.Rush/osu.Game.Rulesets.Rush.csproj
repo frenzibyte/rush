@@ -7,9 +7,9 @@
     <RootNamespace>osu.Game.Rulesets.Rush</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\**" />
+    <PackageReference Include="ppy.osu.Game" Version="2021.323.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Game" Version="2021.323.0" />
+    <ProjectReference Include="..\Rush.Resources\Rush.Resources.csproj" />
   </ItemGroup>
 </Project>
